@@ -9,4 +9,5 @@ DECIMAL avePrice := ROUND(AVE(getCars.Cars_DS, price), 2);
 OUTPUT(avePrice, NAMED('aveCarPrice'));
 
 // display all cars over the ave price
-OUTPUT( getCars.Cars_DS(price > avePrice) , NAMED('overAverage'));
+expCars := getCars.Cars_DS(price > avePrice);
+OUTPUT( expCars , NAMED('overAverage'));

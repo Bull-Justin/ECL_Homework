@@ -1,4 +1,6 @@
 {
     "ecl.launchConfiguration": "KSUCluster",
-    "ecl.targetCluster": {}
+    "ecl.targetCluster": {
+        "KSUCluster": "thor"
+    }
 }

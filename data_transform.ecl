@@ -6,18 +6,18 @@ SET OF STRING dark_colors := ['gray', 'black', 'charcoal', 'brown', 'shadow blac
 SET OF STRING invalid_color := ['color:', 'no_color'];
 
 // Function versions of the inline tranform items
-STRING getName(DATASET(getCars.Cars_Rec) L) := FUNCTION
-  new_name := L.brand + ' ' + L.model;
+STRING getName(STRING L1, STRING L2) := FUNCTION
+  new_name := L1 + ' ' + L2;
   RETURN new_name;
 END;
 
-BOOLEAN getExp(DATASET(getCars.Cars_Rec) L) := FUNCTION
-  RETURN IF (L.price >= 10000 AND L.year <= 2012, TRUE, FALSE);
+BOOLEAN getExp(INTEGER L1, INTEGER L2) := FUNCTION
+  RETURN IF (L1 >= 10000 AND L2 <= 2012, TRUE, FALSE);
 END;
 
-STRING color_Type(DATASET(getCars.Cars_Rec) L) := FUNCTION
-  new_color := MAP (        L.color IN invalid_color     => 'Invalid Entry',
-                            L.color IN dark_colors      => 'Dark',
+STRING color_Type(STRING LColor) := FUNCTION
+  new_color := MAP (        LColor IN invalid_color     => 'Invalid Entry',
+                            LColor IN dark_colors      => 'Dark',
                             'Light'
                             );
   RETURN new_color;
@@ -30,18 +30,28 @@ newRecSet := RECORD
     STRING colorType;
 END;
 
-newRecSet carTS(getCars.Cars_Rec L) := TRANSFORM
+newRecSet inline_carTS(getCars.Cars_Rec L) := TRANSFORM
     SELF.name       := L.brand + ' ' + L.model;
     SELF.Old_Exp    := IF (L.price >= 10000 AND L.year <= 2012, TRUE, FALSE);
     SELF.colorType := MAP ( L.color IN invalid_color     => 'Invalid Entry',
-                            L.color IN dark_colors      => 'Dark',
+                            L.color IN dark_colors       => 'Dark',
                             'Light'
                             );
     SELF            := L;
     SELF            := [];
 END;
 
-newCarDS := PROJECT(getCars.Cars_DS, 
-                    carTS(LEFT));
+standalone_carDS := PROJECT(getCars.Cars_DS, 
+TRANSFORM(newRecSet,
+SELF.name       := getName(LEFT.brand, LEFT.model);
+SELF.Old_Exp    := getExp(LEFT.price, LEFT.year);
+SELF.colorType  := color_type(LEFT.color);
+SELF        := LEFT; 
+SELF        := [];
+));
 
-OUTPUT(newCarDS, NAMED('TransformedCarDS'));
+inline_newCarDS := PROJECT(getCars.Cars_DS, 
+                    inline_carTS(LEFT));
+
+OUTPUT(inline_newCarDS, NAMED('TransformedCarDS'));
+OUTPUT(standalone_carDS, NAMED('StandaloneDS'));

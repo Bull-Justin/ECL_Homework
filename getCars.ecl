@@ -16,6 +16,8 @@ EXPORT getCars := MODULE
     END;
     // Path for Car Dataset
     path := '~us::cars::raw::thor';
-
+    
     EXPORT Cars_DS := DATASET(path, Cars_Rec, FLAT);
+
+    EXPORT DECIMAL avePrice := ROUND(AVE(Cars_DS, price), 2);
 END;

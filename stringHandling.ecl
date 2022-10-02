@@ -14,7 +14,7 @@ END;
 stringRec stringTS(getCars.Cars_Rec L, INTEGER C) := TRANSFORM
     SELF.ID                  := C;
     SELF.carInfo             := L.brand + '_' + L.model;
-    SELF.pricePercentage     := (STRING)(L.price / getCars.avePrice) + '%';
+    SELF.pricePercentage     := (STRING)(ROUND(((L.price / getCars.avePrice)*100), 2) + '%');
     SELF.funColors           := STD.Str.FindReplace(STD.Str.FindReplace(STD.Str.ToUpperCase(L.color), 'A', '@'), 'E', '8');
     SELF.newState            := STD.Str.Reverse(STD.Str.ToTitleCase(L.state));
     SELF.newCondition        := MAP(STD.Str.Contains(L.condition, 'hours', TRUE)    => 'Less Than a Day',

@@ -82,7 +82,7 @@ gradStudentWCity := JOIN(studentDS(isGraduated), addrDS,
                             SELF                := []
                             ), LEFT OUTER); // Left outer will take all of the left, no matter if they have a match or not
 
-OUTPUT(gradStudentWCity, NAMED('allGrads'));
+OUTPUT(DEDUP(gradStudentWCity, name), NAMED('allGrads'));
 
 // Problem 7 - Display all students with all fields in studentDS with the major department, their state, and their city – allStudentsRec is the result layout
 allStudentsRec := RECORD

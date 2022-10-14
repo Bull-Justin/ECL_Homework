@@ -86,26 +86,28 @@ OUTPUT(DEDUP(gradStudentWCity, name), NAMED('allGrads'));
 
 // Problem 7 - Display all students with all fields in studentDS with the major department, their state, and their city – allStudentsRec is the result layout
 allStudentsRec := RECORD
-    INTEGER studentID;
-    STRING name;
-    STRING zipCode;
-    INTEGER age;
-    STRING major;
-    BOOLEAN isGraduated;
-    STRING city;
-    STRING2 state;
-    STRING department;
+    INTEGER     studentID;
+    STRING      name;
+    STRING      zipCode;
+    INTEGER     age;
+    STRING      major;
+    BOOLEAN     isGraduated;
+    STRING      city;
+    STRING2     state;
+    STRING      department;
 END;
 
 allStudentJoin := JOIN( studentDS, majorDS,
                         LEFT.major = RIGHT.majorName,
                         TRANSFORM(allStudentsRec, 
-                            SELF.city       := cityDict[LEFT.zipCode].city,
+                            SELF.city       := cityDict[LEFT.zipCode].city ,
                             SELF.state      := cityDict[LEFT.zipCode].state,
                             SELF.department := RIGHT.department,
                             SELF            := LEFT,
                             SELF            := RIGHT,
                             SELF            := []
-                        ),LEFT OUTER);
+                        ), LEFT OUTER);
 
 OUTPUT(allStudentJoin, NAMED('allStuJoin'));
+
+

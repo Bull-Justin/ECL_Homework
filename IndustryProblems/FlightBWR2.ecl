@@ -23,8 +23,7 @@ getFlights.Output_GSECRec Flight_TF(getFlights.GSECRec L) := TRANSFORM
     SELF.MinutesAfterMidnight   := ((UNSIGNED1)(L.DepartTimePassenger[1..2]) * 60 
                                     + ((UNSIGNED1)(L.DepartTimePassenger[3..4])));
     SELF.Weekend                := IF((BOOLEAN)L.IsOpSat OR (BOOLEAN)L.IsOpSun, TRUE, FALSE);   
-    SELF.TotalDaysActive        := STD.Date.DaysBetween(STD.Date.FromStringToDate(L.EffectiveDate, '%Y%m%d'), STD.Date.FromStringToDate(L.DiscontinueDate, '%Y%m%d'))  
-                                   * 1 + (L.IsOpMon + L.IsOpThu + L.IsOpTue + L.IsOpFri + L.IsOpWed + L.IsOpSat + L.IsOpSun); // Multiplies by the number of active days in the week
+    SELF.TotalDaysActive        := IF(L.EffectiveDate = L.DiscontinueDate, 1, STD.Date.DaysBetween(STD.Date.FromStringToDate(L.EffectiveDate, '%Y%m%d'), STD.Date.FromStringToDate(L.DiscontinueDate, '%Y%m%d')));
     SELF.EconomySeatsOnly       := IF( (L.BusinessClassSeats + L.FirstClassSeats + L.PremiumEconomySeats) = 0 , TRUE , FALSE );
     SELF := L;
     SELF := [];
@@ -122,7 +121,7 @@ OUTPUT(COUNT(getFlights.gsecData), NAMED('CountOfgsecData'));
 
 
 // There were ultimately some values within the two databases that did not match between the ICAO value and the DepartStationCode Value,
-// Leading to some flights that were not joined. 
+// Leading to some flights that were not joined.
 
 /*
 3. Append serviceTypeDS from getServiceTypes to your step 2 result
@@ -131,6 +130,7 @@ OUTPUT(COUNT(getFlights.gsecData), NAMED('CountOfgsecData'));
 */
 
 Output_Three_GSEC := RECORD 
+    // Could also use $.getFlights.gsecRec                      // Another way to get an entire record set definition
     STRING1             Code,                                   // Following four values are for problem 3
     STRING              Application,                            
     STRING              Operation_type,
@@ -200,11 +200,10 @@ problem_three_DS := JOIN(appendDS, getServiceTypes.serviceTypesDS,
                          TRANSFORM(Output_Three_GSEC,                               
                             SELF := LEFT;
                             SELF := RIGHT;
-                            SELF := [];
+                            SELF := []; // Not Necessary
                          ), 
-                         INNER,
-                         SMART); // Would give error Exceeded skew limit: if SMART wasn't used, gave a skew limit of 0.5 and estimated 0.9
+                         INNER); // Would give error Exceeded skew limit: if SMART wasn't used, gave a skew limit of 0.5 and estimated 0.9
 
 OUTPUT(SORT(problem_three_DS, FlightNumber, DepartStationCode), NAMED('sortedProbThree'));
 
-// Everything looks alright, there is a duplicate field now for Code and ServiceType but other than that everything seemed to look fine
+// Everything looks alright, there is a duplicate field now for Code and ServiceType but other than that everything seemed to look 

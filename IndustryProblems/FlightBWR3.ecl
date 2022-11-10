@@ -8,33 +8,44 @@ IMPORT STD;
 4. Write 2 additional data aggreation
 */
 
+// P1
+
+Output_Rec := RECORD
+    Distance_Mon := AVE(GROUP, $.getFlights.gsecData.FlightDistance, IsOpMon = 1);
+    AverageFlightDistance := ROUND(AVE(GROUP, $.getFlights.gsecData.FlightDistance), 3);
+    $.getFlights.gsecData.DepartStationCode
+END;
 
 Prob_One := TABLE($.getFlights.gsecData,
-                    {
-                        Carrier;
-                        AvgDistance := ROUND(AVE(GROUP, FlightDistance), 3);
-                    }, 
-                    Carrier);
+                    Output_Rec, 
+                    Carrier, FlightNumber ,DepartStationCode);
 
-OUTPUT(Prob_One, NAMED('AverageFlightDistance'));
+OUTPUT(Prob_One, NAMED('AverageFlightDistanceByCarrierAirport'));
+
+// P2
 
 Prob_Two := TABLE($.getFlights.gsecData,
                     {
                         Carrier;
                         CountOfLeavingCarriers := COUNT(GROUP, ArriveStationCode != DepartStationCode);
-                    }, Carrier);
+                    },  Carrier);
 
 OUTPUT(Prob_Two, NAMED('CountOfLeavingCarriers'));
 
+// P3
 
 Prob_Three := TABLE($.getFlights.gsecData,
                     {
                         Carrier;
                         FlightNumber;
-                        DayCount := SUM(GROUP, STD.Date.DaysBetween(STD.Date.FromStringToDate(EffectiveDate, '%Y%m%d'), STD.Date.FromStringToDate(DiscontinueDate, '%Y%m%d')));
-                    }, Carrier, FlightNumber);
+                        DayCount := SUM(GROUP, STD.Date.DaysBetween(STD.Date.FromStringToDate(EffectiveDate, '%Y%m%d'), 
+                                               STD.Date.FromStringToDate(DiscontinueDate, '%Y%m%d')));
+                    },
+                    Carrier, FlightNumber);
 
-OUTPUT(SAMPLE(Prob_Three, 20, 50), NAMED('DaysPerFN'));
+// OUTPUT(SAMPLE(Prob_Three, 100, 5), NAMED('SampleDays'));
+OUTPUT(SAMPLE(Prob_Three, 1000, 100), NAMED('DaysPerFN'));
+// OUTPUT(MAX($.getFlights.gsecData, FlightNumber), NAMED('TempMax'));
 
 /*
 Two Additional Data Agg Problems

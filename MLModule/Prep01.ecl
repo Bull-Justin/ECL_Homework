@@ -4,8 +4,8 @@ Housing    := $.File_Housing.File;
 ML_Housing := $.File_Housing.MLHousing;
 
 EXPORT Prep01 := MODULE
-  EXPORT MLHousExt := RECORD(ML_Housing)
-    UNSIGNED4 rnd; // A random number
+	EXPORT MLHousExt := RECORD(ML_Housing)
+ 	UNSIGNED4 rnd; // A random number
 	END;
 	
  // Format the data and assign a random number to each record
